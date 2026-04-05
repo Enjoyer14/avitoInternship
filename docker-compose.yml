@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: avito_db
+    environment:
+      POSTGRES_DB: avito
+      POSTGRES_USER: avito
+      POSTGRES_PASSWORD: avito
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U avito -d avito"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: avito_app
+    environment:
+      APP_PORT: "8080"
+      DATABASE_URL: "postgres://avito:avito@db:5432/avito?sslmode=disable"
+      JWT_SECRET: "ochen-secretniy-kluch"
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
